@@ -1,0 +1,38 @@
+version: '3'
+services:
+  postgre:
+    build:
+      context: ./containers/postgre
+    ports:
+      - 5432:5432
+    image: st_and_db_1_postgre_image
+    container_name: st_and_db_1_postgre
+    volumes:
+      - ~/st_and_db_labs_data/postgre:/var/lib/postgresql/data
+  mysql:
+    build:
+      context: ./containers/mysql
+    ports:
+      - 3306:3306
+    image: st_and_db_1_mysql_image
+    container_name: st_and_db_1_mysql
+    volumes:
+      - ~/st_and_db_labs_data/mysql:/var/lib/mysql
+  oracle:
+    build:
+      context: ./containers/oracle
+    ports:
+      - 1521:1521
+    image: st_and_db_1_oracle_image
+    container_name: st_and_db_1_oracle
+    volumes:
+      - ~/st_and_db_labs_data/oracle:/opt/oracle/oradata
+  mongo:
+    build:
+      context: ./containers/mongo
+    ports:
+      - 2222:27017
+    image: st_and_db_1_mongo_image
+    container_name: st_and_db_1_mongo
+    volumes:
+      - ~/st_and_db_labs_data/mongo:/data/db
