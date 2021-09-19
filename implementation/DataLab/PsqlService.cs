@@ -26,8 +26,10 @@ namespace DataLab
 
         public IEnumerable<Result> Results => _results;
 
-        public PsqlService(IDictionary<Guid, string> people, IEnumerable<TeacherDto> dictionary)
+        private List<Guid> _guids;
+        public PsqlService(IDictionary<Guid, string> people, IEnumerable<TeacherDto> dictionary, Guid[] guids)
         {
+            _guids = new List<Guid>(guids);
             CreateUniversities();
             CreateSpecialisations();
             GenerateDisciplines(dictionary);
@@ -50,6 +52,7 @@ namespace DataLab
             _discipline = new Faker<DisciplineDto>("ru")
                 .Ignore(x => x.Id)
                 .RuleFor(x => x.Name, x => x.Commerce.ProductName())
+                .RuleFor(x=>x.DiscpId,_=> GetDGuid())
                 .RuleFor(x => x.Semester, f => f.Random.Int(1, 9))
                 .RuleFor(x => x.IsExam, f => f.Random.Bool())
                 .RuleFor(x => x.Faculty, f => f.PickRandom(fac))
@@ -61,6 +64,13 @@ namespace DataLab
                 .RuleFor(x => x.TeacherFio, (_, u) => dictionary.First(x => x.ID == u.TeacherId).FIO)
                 .RuleFor(x => x.IsFullTime, f => f.Random.Bool())
                 .RuleFor(x => x.IsNewStandard, f => f.Random.Bool()).Generate(100);
+        }
+
+        private string GetDGuid()
+        {
+            var first = _guids.First();
+            _guids.Remove(first);
+            return first.ToString();
         }
 
         private void CreateSpecialisations()

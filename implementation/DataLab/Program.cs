@@ -22,8 +22,9 @@ namespace DataLab
         {
             var dictionary = CreatePersonDictionary();
             var teachers = CreateTeacherDictionary();
+            var pull = Enumerable.Range(0, 100).Select(_ => Guid.NewGuid()).ToArray();
             //FillMySql(dictionary);
-            FillPsql(dictionary,teachers);
+            FillPsql(dictionary,teachers,pull);
             //FillMongo(dictionary);
         }
 
@@ -49,9 +50,9 @@ namespace DataLab
             db.SaveChanges();
         }
 
-        public static void FillPsql(Dictionary<Guid, string> dictionary,IEnumerable<TeacherDto> teacher)
+        public static void FillPsql(Dictionary<Guid, string> dictionary, IEnumerable<TeacherDto> teacher, Guid[] guids)
         {
-            var psqlService = new PsqlService(dictionary,teacher);
+            var psqlService = new PsqlService(dictionary,teacher, guids);
             using var db = new PsqlAppContext();
             db.Universities.AddRange(psqlService.Universities);
             db.Specialisations.AddRange(psqlService.Specialisations);

@@ -11,5 +11,10 @@ namespace DataLab.Dto.Oracle
         public DateTime Birthdate { get; set; }
         public string Departament { get; set; }
         public string Position { get; set; }
+        public bool IsPaid { get; set; }
+       
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string StudyWay { get; set; }
     }
 }

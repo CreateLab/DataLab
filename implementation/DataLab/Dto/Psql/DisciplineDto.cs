@@ -3,6 +3,7 @@
     public class DisciplineDto
     {
         public int Id { get; set; }
+        public string DiscpId { get; set; }
         public bool IsNewStandard { get; set; }
         public string   Name { get; set; }
         public bool IsFullTime { get; set; }
