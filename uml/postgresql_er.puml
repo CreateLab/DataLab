@@ -1,0 +1,57 @@
+@startuml
+title PostgreSQL Schema
+
+entity university {
+  * id: int <generated>
+  --
+  * name: text
+}
+
+entity student {
+  * id: int <generated>
+  --
+  * student_id: text
+  * FIO: text
+}
+
+entity specialization {
+  * id: int <generated>
+  --
+  * university_id: int <FK>
+  --
+  * name: text
+}
+university ||-o{ specialization
+
+entity discipline {
+  * id: int <generated>
+  --
+  * specialization_id: int <FK>
+  --
+  * name: text
+  * is_new_standard: boolean
+  * is_full_time: boolean
+  * faculty: text
+  * semester: int
+  * lecture_time: int
+  * practice_time: int
+  * lab_time: int
+  * is_exam: boolean
+  * teacher_id: text
+  * teacher_fio: text
+}
+specialization ||--o{ discipline
+
+entity result {
+  * id: int <generated>
+  --
+  * discipline_id: int <FK>
+  * student_id: int <FK>
+  --
+  * mark: int
+  * date: timestamp with timezone
+}
+student ||--o{ result
+discipline ||-o{ result
+
+@enduml

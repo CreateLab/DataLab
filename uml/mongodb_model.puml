@@ -1,0 +1,36 @@
+@startuml
+entity building {
+  * id: objectId <generated>
+  --
+  * roomCount: int
+  * location: string
+}
+
+entity room {
+  * id: objectId <generated>
+  --
+  * buildId: objectId <FK>
+  --
+  * maxCapacity: int
+  * capacity: int
+  * isInsects: bool
+  * disinfectionDate: date
+}
+building ||-o{ room
+
+entity student {
+  * id: objectId <generated>
+  --
+  * roomId: objectId <FK>
+  --
+  * studentId: string
+  * FIO: string
+  * privileges: bool
+  * educationType: string
+  * lastAction: string
+  * warnings: int
+  * startDate: date
+  * endDate: date
+}
+room ||-o{ student
+@enduml

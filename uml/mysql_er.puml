@@ -1,0 +1,84 @@
+@startuml
+skinparam linetype ortho
+
+title MqSQL Schema
+
+entity student {
+  * id: NUMBER(10) <generated>
+  --
+  * student_id: VARCHAR2(255 CHAR)
+  * FIO: VARCHAR2(255 CHAR)
+  * position: VARCHAR2(255 CHAR)
+}
+
+entity book_info {
+  * id: NUMBER(10) <generated>
+  --
+  * student_id: NUMBER(10) <FK>
+  --
+  * name: VARCHAR2(255 CHAR)
+  * is_taken: NUMBER(1)
+  * take_date: TIMESTAMP
+  * return_date: TIMESTAMP
+}
+student ||--o{ "читательский\nлист" book_info
+
+entity conference {
+  * id: NUMBER(10) <generated>
+  --
+  * name: VARCHAR2(255 CHAR)
+  * start_time: TIMESTAMP
+  * place: VARCHAR2(255 CHAR)
+}
+
+entity conference_participation {
+  * student_id: NUMBER(10) <FK>
+  * conference_id: NUMBER(10) <FK>
+  --
+}
+student ||--o{ conference_participation
+conference ||--o{ conference_participation
+
+entity project {
+  * id: NUMBER(10) <generated>
+  --
+  * author_id: NUMBER(10) <FK>
+  --
+  * name: VARCHAR2(255 CHAR)
+  * start_date: TIMESTAMP
+  * end_date: TIMESTAMP
+}
+student ||--o{ project
+
+entity project_students_co_author {
+  * student_id: NUMBER(10) <FK>
+  * project_id: NUMBER(10) <FK>
+  --
+}
+student ||--o{ project_students_co_author
+project ||--o{ project_students_co_author
+
+entity publication {
+  * id: NUMBER(10)
+  --
+  * author_id: NUMBER(10) <FK>
+  --
+  * name: VARCHAR2(255 CHAR)
+  * lang: VARCHAR2(255 CHAR)
+  * publisher_name: VARCHAR2(255 CHAR)
+  * publisher_volume: NUMBER(10)
+  * publisher_place: VARCHAR2(255 CHAR)
+  * type: VARCHAR2(255 CHAR)
+  * index: NUMBER(10)
+  * publication_date: TIMESTAMP
+}
+student ||--o{ publication
+
+entity publication_co_author {
+  * student_id: NUMBER(10) <FK>
+  * publication_id: NUMBER(10) <FK>
+  --
+}
+student ||--o{ publication_co_author
+publication ||--o{ publication_co_author
+@enduml
