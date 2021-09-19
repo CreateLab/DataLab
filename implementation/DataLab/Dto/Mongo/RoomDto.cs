@@ -15,7 +15,7 @@ namespace DataLab.Dto.Mongo
         public int MaxCapacity { get; set; }
         public int Capacity { get; set; }
         public bool IsInsects { get; set; }
-        public DateTime DesenfectionDate { get; set; }
+        public DateTime DisinfectionDate { get; set; }
         public IEnumerable<StudentDto> Students { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace DataLab.Dto.MySql
         public string Name { get; set; }
         public StudentDto Student { get; set; }
         public bool IsTaken { get; set; }
-        public  DateTime TakeTime  { get; set; }
+        public DateTime TakeDate { get; set; }
         public DateTime ReturnDate { get; set; }
     }
 }

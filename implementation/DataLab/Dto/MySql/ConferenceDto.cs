@@ -6,7 +6,7 @@ namespace DataLab.Dto.MySql
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public DateTime StatTime { get; set; }
+        public DateTime StartTime { get; set; }
         public string Place { get; set; }
         
     }
