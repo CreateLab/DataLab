@@ -20,6 +20,8 @@ namespace DataLab
         private List<ProjectStudentsCoAuthorDto> _projectStudentsCoAuthorDtos;
         private List<PublicationCoauthorDto> _publicationCoauthorDtos;
 
+        public IEnumerable<ConferenceParticipationDto> ConferenceParticipationDtos { get; set; }
+
         public List<PublicationCoauthorDto> PublicationCoauthorDtos => _publicationCoauthorDtos;
 
         public IEnumerable<StudentDto> Students => _students;
@@ -44,6 +46,15 @@ namespace DataLab
             CreatePublications();
             GenerateProjectCoauthors();
             CreatePublicationCouathors();
+            CreateConferenceDto();
+        }
+
+        private void CreateConferenceDto()
+        {
+           ConferenceParticipationDtos =  new Faker<ConferenceParticipationDto>()
+                .Ignore(x => x.Id)
+                .RuleFor(x => x.ConferenceDto, f => f.PickRandom(Conference))
+                .RuleFor(x => x.StudentDto, f => f.PickRandom(_students)).Generate(20);
         }
 
         private void CreatePublicationCouathors()
@@ -102,7 +113,7 @@ namespace DataLab
                 .RuleFor(x => x.Name, f => f.Database.Engine())
                 .RuleFor(x => x.IsTaken, f => f.Random.Bool())
                 .RuleFor(x => x.ReturnDate, f => f.Date.Soon())
-                .RuleFor(x => x.TakeTime, f => f.Date.Recent())
+                .RuleFor(x => x.TakeDate, f => f.Date.Recent())
                 .Ignore(x => x.Id)
                 .RuleFor(x => x.Student, f => f.PickRandom(_students)).Generate(100);
         }
@@ -112,7 +123,7 @@ namespace DataLab
             _conference = new Faker<ConferenceDto>("ru")
                 .RuleFor(x => x.Name, f => f.Commerce.Department())
                 .RuleFor(x => x.Place, f => f.Address.FullAddress())
-                .RuleFor(x => x.StatTime, f => f.Date.Recent())
+                .RuleFor(x => x.StartTime, f => f.Date.Recent())
                 .Ignore(x => x.Id).Generate(10);
         }
 

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Bogus;
 using DataLab.Dto.Mongo;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using SharpCompress.Compressors.Xz;
 
 namespace DataLab
 {
@@ -10,51 +13,86 @@ namespace DataLab
     {
         private readonly Random _random = new Random();
 
-        public Building CreateBuilding(Dictionary<Guid, string> peoples)
+        public Building Building { get; set; }
+        public List<RoomDto> RoomDtos { get; set; }
+        public IEnumerable<StudentDto> StudentDtos { get; set; }
+        public IEnumerable<Rent> Rents { get; set; }
+
+        public MongoService(Dictionary<Guid, string> peoples)
+        {
+            CreateBuilding();
+            GenerateRooms();
+            GenerateStudents(peoples);
+            GenerateRoomStudent();
+        }
+
+        private void CreateBuilding()
         {
             var building = new Faker<Building>("ru")
+                .RuleFor(x => x.Id, _ => ObjectId.GenerateNewId())
                 .RuleFor(x => x.Location, f => f.Address.FullAddress())
-                .Ignore(x => x.Rooms)
-                .RuleFor(x => x.RoomCount, f => f.Random.Int(10, 200)).Generate(1).First();
-            building.Rooms = GenerateRooms(peoples, building.RoomCount);
-            return building;
+                .RuleFor(x => x.RoomCount, f => f.Random.Int(200, 500)).Generate(1).First();
+            Building = building;
         }
 
-        private IEnumerable<RoomDto> GenerateRooms(Dictionary<Guid, string> people, int buildingRoomCount)
+        private void GenerateRooms()
         {
-            return new Faker<RoomDto>()
+            RoomDtos = new Faker<RoomDto>()
+                .RuleFor(x => x.Id, _=> ObjectId.GenerateNewId())
+                .RuleFor(x=>x.Number,f=>f.Random.Int())
                 .RuleFor(x => x.MaxCapacity, f => f.Random.Int(1, 6))
-                .RuleFor(x => x.DesenfectionDate, f => f.Date.Recent())
+                .RuleFor(x => x.DisinfectionDate, f => f.Date.Recent())
                 .RuleFor(x => x.IsInsects, f => f.Random.Bool())
-                .RuleFor(x => x.Students, (f, r) => GenerateStudents(people, r.MaxCapacity))
-                .RuleFor(x => x.Capacity, (f, u) => u.Students.ToList().Count).Generate(buildingRoomCount);
+                .RuleFor(x => x.BuildId, _ => new MongoDBRef("building", Building.Id))
+                .Generate(Building.RoomCount);
+            //.RuleFor(x => x.Students, (f, r) => GenerateStudents(people, r.MaxCapacity))
+            // .RuleFor(x => x.Capacity, (f, u) => u.Students.ToList().Count).Generate(buildingRoomCount);
         }
 
-        private IEnumerable<StudentDto> GenerateStudents(IDictionary<Guid, string> people, int arg2MaxCapacity)
+        private void GenerateStudents(IDictionary<Guid, string> people)
         {
-            var maxCapacity = people.Count > arg2MaxCapacity ? arg2MaxCapacity : people.Count;
-            if (maxCapacity <= 2) return Array.Empty<StudentDto>();
-            var actions = new[] { "ушел", "пришел" };
-            var count = _random.Next(1, maxCapacity);
+            StudentDtos = people.Select(GenerateStudent);
+        }
 
-            var students = new Faker<StudentDto>()
+
+        private StudentDto GenerateStudent(KeyValuePair<Guid, string> keyValuePair)
+        {
+            var actions = new[] { "ушел", "пришел" };
+            return new Faker<StudentDto>("ru")
+                .RuleFor(x => x.Id, _ => ObjectId.GenerateNewId())
                 .RuleFor(x => x.Privileges, f => f.Random.Bool())
-                .RuleFor(x => x.Warnings, f => f.Random.Int(1, 4))
-                .RuleFor(x => x.EducationType, f => f.PickRandom<EducationType>())
+                .RuleFor(x => x.Warnings, f => f.Random.Int(1, 100))
                 .RuleFor(x => x.LastAction, f => f.PickRandom(actions))
-                .RuleFor(x=>x.StartDate,f=>f.Date.Past())
-                .RuleFor(x=>x.EndDate,f=>f.Date.Future())
-                .Generate(count);
-            foreach (var student in students)
+                .RuleFor(x => x.EducationType, f => f.PickRandom<EducationType>())
+                .RuleFor(x => x.StudentId, _ => keyValuePair.Key.ToString())
+                .RuleFor(x => x.FIO, _ => keyValuePair.Value).Generate(1).First();
+        }
+
+        private void GenerateRoomStudent()
+        {
+            var rents = new List<Rent>();
+            foreach (var student in StudentDtos)
             {
-                int index = _random.Next(people.Count);
-                var s = people.ToList()[index];
-                people.Remove(s.Key);
-                student.StudentId = s.Key.ToString();
-                student.FIO = s.Value;
+                var randomRoom = GetRandomRoom();
+                randomRoom.Capacity++;
+                rents.Add(new Faker<Rent>().RuleFor(x => x.Id, _ => ObjectId.GenerateNewId())
+                    .RuleFor(x => x.Room, _ => new MongoDBRef("rooms", randomRoom.Id))
+                    .RuleFor(x => x.Student, _ => new MongoDBRef("students", student.Id))
+                    .RuleFor(x=>x.StartDate,f=>f.Date.Recent())
+                    .RuleFor(f=>f.EndDate,f=>f.Date.Soon()));
             }
 
-            return students;
+            Rents = rents;
+        }
+
+        private RoomDto GetRandomRoom()
+        {
+            while (true)
+            {
+                var next = _random.Next(0, RoomDtos.Count);
+                var room = RoomDtos[next];
+                if (room.Capacity < room.MaxCapacity) return room;
+            }
         }
     }
 }

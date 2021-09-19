@@ -12,67 +12,70 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using StudentDto = DataLab.Dto.Mongo.StudentDto;
 
 namespace DataLab
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var dictionary = CreatePersonDictionary();
+            var teachers = CreateTeacherDictionary();
             //FillMySql(dictionary);
-            //FillPsql(dictionary);
-            FillMongo(dictionary);
+            FillPsql(dictionary,teachers);
+            //FillMongo(dictionary);
+        }
+
+        private static IEnumerable<TeacherDto> CreateTeacherDictionary()
+        {
+            var json = File.ReadAllText("./Data/teachers.json");
+            var dataArray = JsonConvert.DeserializeObject<IEnumerable<TeacherDto>>(json);
+            return dataArray;
         }
 
         private static void FillMySql(Dictionary<Guid, string> dictionary)
         {
             var mySqlService = new MySqlService(dictionary);
-            using (var db = new MySqlDbContext())
-            {
-                db.StudentDtos.AddRange(mySqlService.Students);
-                db.ProjectDtos.AddRange(mySqlService.ProjectDtos);
-                db.ProjectStudentsCoAuthorDtos.AddRange(mySqlService.ProjectStudentsCoAuthorDtos);
-                db.BookInfoDtos.AddRange(mySqlService.BookInfoDtos);
-                db.ConferenceDtos.AddRange(mySqlService.Conference);
-                db.PublicationDtos.AddRange(mySqlService.PublicationDtos);
-                db.PublicationCoauthorDtos.AddRange(mySqlService.PublicationCoauthorDtos);
-                db.SaveChanges();
-            }
+            using var db = new MySqlDbContext();
+            db.StudentDtos.AddRange(mySqlService.Students);
+            db.ProjectDtos.AddRange(mySqlService.ProjectDtos);
+            db.ProjectStudentsCoAuthorDtos.AddRange(mySqlService.ProjectStudentsCoAuthorDtos);
+            db.BookInfoDtos.AddRange(mySqlService.BookInfoDtos);
+            db.ConferenceDtos.AddRange(mySqlService.Conference);
+            db.PublicationDtos.AddRange(mySqlService.PublicationDtos);
+            db.PublicationCoauthorDtos.AddRange(mySqlService.PublicationCoauthorDtos);
+            db.ConferenceParticipationDtos.AddRange(mySqlService.ConferenceParticipationDtos);
+            db.SaveChanges();
         }
 
-        public static void FillPsql(Dictionary<Guid, string> dictionary)
+        public static void FillPsql(Dictionary<Guid, string> dictionary,IEnumerable<TeacherDto> teacher)
         {
-            var psqlService = new PsqlService(dictionary);
-            using (var db = new PsqlAppContext())
-            {
-                db.Universities.AddRange(psqlService.Universities);
-                db.Specialisations.AddRange(psqlService.Specialisations);
-                db.Disciplines.AddRange(psqlService.Discipline);
-                db.StudentDtos.AddRange(psqlService.StudentDtos);
-                db.Results.AddRange(psqlService.Results);
-                db.SaveChanges();
-            }
+            var psqlService = new PsqlService(dictionary,teacher);
+            using var db = new PsqlAppContext();
+            db.Universities.AddRange(psqlService.Universities);
+            db.Specialisations.AddRange(psqlService.Specialisations);
+            db.Disciplines.AddRange(psqlService.Discipline);
+            db.StudentDtos.AddRange(psqlService.StudentDtos);
+            db.Results.AddRange(psqlService.Results);
+            db.SaveChanges();
         }
 
         private static void FillMongo(Dictionary<Guid, string> dictionary)
         {
-            var building = new MongoService().CreateBuilding(dictionary);
-            string connectionString = "mongodb://admin:admin@localhost:2222";
-            MongoClient client = new MongoClient(connectionString);
+            var mongoService = new MongoService(dictionary);
+            const string connectionString = "mongodb://admin:admin@localhost:2222";
+            var client = new MongoClient(connectionString);
             var mongoDatabase = client.GetDatabase("test");
-            var mongoCollection = mongoDatabase.GetCollection<Building>("building");
-            mongoCollection.InsertOne(building);
-            var mongoDbRef = new MongoDBRef("building", building.Id);
-            foreach (var room in building.Rooms)
-            {
-                room.BuildId = mongoDbRef;
-            }
+            var mongoBuildingCollection = mongoDatabase.GetCollection<Building>("building");
+            mongoBuildingCollection.InsertOne(mongoService.Building);
 
-
-            var roomsCollection = mongoDatabase.GetCollection<RoomDto>("rooms");
-            roomsCollection.InsertMany(building.Rooms);
-            var filter = new BsonDocument();
+            var mongoRoomCollection = mongoDatabase.GetCollection<RoomDto>("rooms");
+            mongoRoomCollection.InsertMany(mongoService.RoomDtos);
+            var mongoStudentCollection = mongoDatabase.GetCollection<StudentDto>("students");
+            mongoStudentCollection.InsertMany(mongoService.StudentDtos);
+            var mongoRentCollection = mongoDatabase.GetCollection<Rent>("rents");
+            mongoRentCollection.InsertMany(mongoService.Rents);
         }
 
         private static Dictionary<Guid, string> CreatePersonDictionary()

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Bogus;
+using DataLab.Dto.Data;
 using DataLab.Dto.Psql;
 
 namespace DataLab
@@ -25,12 +26,12 @@ namespace DataLab
 
         public IEnumerable<Result> Results => _results;
 
-        public PsqlService(IDictionary<Guid, string> people)
+        public PsqlService(IDictionary<Guid, string> people, IEnumerable<TeacherDto> dictionary)
         {
             CreateUniversities();
             CreateSpecialisations();
-            GenerateDisciplines();
-            CreateStudents(people); 
+            GenerateDisciplines(dictionary);
+            CreateStudents(people);
             CreateStudentResults();
         }
 
@@ -43,20 +44,21 @@ namespace DataLab
             });
         }
 
-        private void GenerateDisciplines()
+        private void GenerateDisciplines(IEnumerable<TeacherDto> dictionary)
         {
+            var fac = new[] { "пиикт", "суир", "муир" };
             _discipline = new Faker<DisciplineDto>("ru")
-                .Ignore(x=>x.Id)
+                .Ignore(x => x.Id)
                 .RuleFor(x => x.Name, x => x.Commerce.ProductName())
                 .RuleFor(x => x.Semester, f => f.Random.Int(1, 9))
                 .RuleFor(x => x.IsExam, f => f.Random.Bool())
-
+                .RuleFor(x => x.Faculty, f => f.PickRandom(fac))
                 .RuleFor(x => x.LabTime, f => f.Random.Int(0, 100))
                 .RuleFor(x => x.LectureTime, f => f.Random.Int(0, 100))
-                .RuleFor(x => x.PracticTime, f => f.Random.Int(0, 100))
+                .RuleFor(x => x.PracticeTime, f => f.Random.Int(0, 100))
                 .RuleFor(x => x.SpecialisationDto, f => f.PickRandom(_specialisations))
-                .RuleFor(x => x.TeacherFio, f => f.Name.FullName())
-                .RuleFor(x => x.TeacherId, f => Guid.NewGuid().ToString())
+                .RuleFor(x => x.TeacherId, f => f.PickRandom(dictionary).ID)
+                .RuleFor(x => x.TeacherFio, (_, u) => dictionary.First(x => x.ID == u.TeacherId).FIO)
                 .RuleFor(x => x.IsFullTime, f => f.Random.Bool())
                 .RuleFor(x => x.IsNewStandard, f => f.Random.Bool()).Generate(100);
         }
@@ -64,7 +66,7 @@ namespace DataLab
         private void CreateSpecialisations()
         {
             _specialisations = new Faker<SpecialisationDto>("ru")
-                .Ignore(x=>x.Id)
+                .Ignore(x => x.Id)
                 .RuleFor(x => x.Name, f => $@"{f.Random.Int(1, 10)}.{f.Random.Int(1, 10)}.{f.Random.Int(1, 10)}")
                 .RuleFor(x => x.University, f => f.PickRandom(_universities)).Generate(10);
         }
@@ -89,10 +91,11 @@ namespace DataLab
             var results = new List<Result>(400);
             foreach (var studentDto in _studentDtos)
             {
-                results.AddRange( new Faker<Result>()
-                    .Ignore(x=>x.Id)
+                results.AddRange(new Faker<Result>()
+                    .Ignore(x => x.Id)
                     .RuleFor(x => x.Student, _ => studentDto)
                     .RuleFor(x => x.Mark, f => f.Random.Int(0, 101))
+                    .RuleFor(x => x.Date, f => f.Date.Recent())
                     .RuleFor(x => x.Discipline, f => f.PickRandom(_discipline)).Generate(2));
             }
 

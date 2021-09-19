@@ -12,6 +12,8 @@ namespace DataLab.Dto.MySql
         public DbSet<PublicationDto> PublicationDtos { get; set; }
         public DbSet<ProjectStudentsCoAuthorDto> ProjectStudentsCoAuthorDtos { get; set; }
         public DbSet<PublicationCoauthorDto> PublicationCoauthorDtos { get; set; }
+        
+        public DbSet<ConferenceParticipationDto> ConferenceParticipationDtos { get; set; } 
         public MySqlDbContext()
         {
             Database.EnsureCreated();
