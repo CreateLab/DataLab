@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataLab.Dto.MySql
@@ -8,6 +9,7 @@ namespace DataLab.Dto.MySql
         public DbSet<BookInfoDto> BookInfoDtos { get; set; }
         public DbSet<ConferenceDto> ConferenceDtos { get; set; }
         public DbSet<ProjectDto> ProjectDtos { get; set; }
+       
         public DbSet<StudentDto> StudentDtos { get; set; }
         public DbSet<PublicationDto> PublicationDtos { get; set; }
         public DbSet<ProjectStudentsCoAuthorDto> ProjectStudentsCoAuthorDtos { get; set; }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using MongoDB.Bson;
 
 namespace DataLab.Dto.RuleDto
 {
@@ -11,5 +13,7 @@ namespace DataLab.Dto.RuleDto
         public int Capacity { get; set; }
         public bool IsInsects { get; set; }
         public DateTime DisinfectionDate { get; set; }
+        [IgnoreDataMember]
+        public BsonValue MongoId { get; set; }
     }
 }

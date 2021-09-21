@@ -4,6 +4,6 @@
     {
         public int Id { get; set; }
         public StudentDto Author { get; set; }
-        public PublicationDto Project { get; set; }
+        public PublicationDto Publication { get; set; }
     }
 }

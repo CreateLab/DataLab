@@ -63,7 +63,7 @@ namespace DataLab
             _publicationCoauthorDtos.AddRange(new Faker<PublicationCoauthorDto>()
                 .Ignore(x=>x.Id)
                 .RuleFor(x=>x.Author,f=>f.PickRandom(_students))
-                .RuleFor(x=>x.Project,f=>f.PickRandom(_publicationDtos))
+                .RuleFor(x=>x.Publication,f=>f.PickRandom(_publicationDtos))
                 .Generate(100)
             );
         }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using DataLab.Dto.Mongo;
+using MongoDB.Bson;
 
 namespace DataLab.Dto.RuleDto
 {
@@ -21,5 +23,7 @@ namespace DataLab.Dto.RuleDto
         public EducationType EducationType { get; set; }
         public string LastAction { get; set; }
         public int Warnings { get; set; }
+        [IgnoreDataMember]
+        public BsonValue MongoId { get; set; }
     }
 }

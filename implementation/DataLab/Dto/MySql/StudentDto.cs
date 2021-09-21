@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataLab.Dto.MySql
 {
+    [Table("StudentDtos")]
     public class StudentDto
     {
         public int Id { get; set; }

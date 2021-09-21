@@ -7,10 +7,16 @@
 
     <ItemGroup>
       <PackageReference Include="Bogus" Version="33.1.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.10">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="MongoDB.Driver" Version="2.13.1" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
+      <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.3" />
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.1" />
+      <PackageReference Include="System.Diagnostics.Tools" Version="4.3.0" />
     </ItemGroup>
 
     <ItemGroup>
