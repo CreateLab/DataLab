@@ -85,7 +85,7 @@ namespace DataLab
                     StudentId = id,
                     StudyWay = oracleStudent.StudyWay,
                     FIO = psqlStudent.FIO,
-                    MongoId = mongoStudent.Id
+                    MongoId = mongoStudent.Id.ToString()
                 };
             });
         }
@@ -182,7 +182,7 @@ namespace DataLab
             {
                 Location = x.Location,
                 RoomCount = x.RoomCount,
-                MongoId = x.Id
+                MongoId = x.Id.ToString()
             });
         }
 
@@ -286,8 +286,8 @@ namespace DataLab
                 DisinfectionDate = x.DisinfectionDate,
                 IsInsects = x.IsInsects,
                 MaxCapacity = x.MaxCapacity,
-                Build = _buildings.FirstOrDefault(b => b.MongoId.AsString == x.BuildId.Id.AsString),
-                MongoId = x.Id
+                Build = _buildings.FirstOrDefault(b => b.MongoId == x.BuildId.Id.AsString),
+                MongoId = x.Id.ToString()
             });
         }
 
@@ -301,8 +301,8 @@ namespace DataLab
             {
                 StartDate = x.StartDate,
                 EndDate = x.EndDate,
-                Student = _studentDtos.FirstOrDefault(s => s.MongoId.AsString == x.Student.Id.AsString),
-                Room = _rooms.FirstOrDefault(r => r.MongoId.AsString == x.Room.Id.AsString)
+                Student = _studentDtos.FirstOrDefault(s => s.MongoId == x.Student.Id.AsString),
+                Room = _rooms.FirstOrDefault(r => r.MongoId == x.Room.Id.AsString)
             });
         }
 

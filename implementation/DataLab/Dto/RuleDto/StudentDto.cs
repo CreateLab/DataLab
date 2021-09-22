@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using DataLab.Dto.Mongo;
 using MongoDB.Bson;
@@ -24,6 +25,7 @@ namespace DataLab.Dto.RuleDto
         public string LastAction { get; set; }
         public int Warnings { get; set; }
         [IgnoreDataMember]
-        public BsonValue MongoId { get; set; }
+        [NotMapped]
+        public string MongoId { get; set; }
     }
 }

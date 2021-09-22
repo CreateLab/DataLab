@@ -27,7 +27,7 @@ namespace DataLab
             //FillMySql(dictionary);
             //FillPsql(dictionary, teachers, pull);
             //FillMongo(dictionary);
-            FillOracle(dictionary,teachers,pool);
+           // FillOracle(dictionary,teachers,pool);
         }
 
         private static IEnumerable<TeacherDto> CreateTeacherDictionary()

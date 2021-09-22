@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 
@@ -14,6 +15,7 @@ namespace DataLab.Dto.RuleDto
         public bool IsInsects { get; set; }
         public DateTime DisinfectionDate { get; set; }
         [IgnoreDataMember]
-        public BsonValue MongoId { get; set; }
+        [NotMapped]
+        public string MongoId { get; set; }
     }
 }

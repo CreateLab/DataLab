@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLab.Dto.RuleDto
 {
-    public class OracleRuleAppContext : DbContext
+    public class RukeAppContext : DbContext
     {
         public DbSet<Class> Classes { get; set; }
         public DbSet<Discipline> Disciplines { get; set; }
@@ -21,7 +21,7 @@ namespace DataLab.Dto.RuleDto
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Rent> Rents { get; set; }
 
-        public OracleRuleAppContext()
+        public RukeAppContext()
         {
             Database.EnsureCreated();
         }
@@ -29,7 +29,7 @@ namespace DataLab.Dto.RuleDto
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseOracle(
-                "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=localhost)(PORT=11521))(CONNECT_DATA=(SERVICE_NAME=orclpdb1)));User ID=rbdz;Password=rbdz;");
+                "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=pdb1.localdomain)));User ID=rbdz;Password=rbdz;");
         }
     }
 }

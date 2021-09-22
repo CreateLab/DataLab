@@ -18,7 +18,7 @@ namespace DataLab.Dto.Oracle
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseOracle("Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=localhost)(PORT=11521))(CONNECT_DATA=(SERVICE_NAME=orclpdb1)));User ID=rbdz;Password=rbdz;");
+            optionsBuilder.UseOracle("Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orclpdb1)));User ID=rbdz;Password=rbdz;");
         }
     }
 }
