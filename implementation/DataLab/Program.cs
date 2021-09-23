@@ -9,10 +9,13 @@ using DataLab.Dto.Mongo;
 using DataLab.Dto.MySql;
 using DataLab.Dto.Oracle;
 using DataLab.Dto.Psql;
+using DataLab.Dto.RuleDto;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Building = DataLab.Dto.Mongo.Building;
+using Rent = DataLab.Dto.Mongo.Rent;
 using StudentDto = DataLab.Dto.Mongo.StudentDto;
 
 namespace DataLab
@@ -24,10 +27,37 @@ namespace DataLab
             var dictionary = CreatePersonDictionary();
             var teachers = CreateTeacherDictionary();
             var pool = Enumerable.Range(0, 100).Select(_ => Guid.NewGuid()).ToArray();
-            //FillMySql(dictionary);
-            //FillPsql(dictionary, teachers, pull);
-            //FillMongo(dictionary);
-           // FillOracle(dictionary,teachers,pool);
+            /*FillMySql(dictionary);
+             FillPsql(dictionary, teachers, pool);
+             FillMongo(dictionary);
+             FillOracle(dictionary, teachers, pool);*/
+            //var resultOracleService = CreateResultOracleService();
+            //FillRuleOracle(resultOracleService);
+        }
+
+        private static void FillRuleOracle(ResultOracleService resultOracleService)
+        {
+            using var db = new RukeAppContext();
+            db.Buildings.AddRange(resultOracleService.Buildings);
+            db.Classes.AddRange(resultOracleService.Classes);
+            db.Disciplines.AddRange(resultOracleService.Disciplines);
+            db.PublicationCoauthors.AddRange(resultOracleService.PublicationCoauthors);
+            db.StudentDtos.AddRange(resultOracleService.StudentDtos);
+            db.Disciplines.AddRange(resultOracleService.Disciplines);
+            db.StudyGroups.AddRange(resultOracleService.StudyGroups);
+            db.Classes.AddRange(resultOracleService.Classes);
+            db.BookInfoDtos.AddRange(resultOracleService.BookInfoDtos);
+            db.Buildings.AddRange(resultOracleService.Buildings);
+            db.ConferenceDtos.AddRange(resultOracleService.ConferenceDtos);
+            db.ConferenceParticipationDtos.AddRange(resultOracleService.ConferenceParticipationDtos);
+            db.ProjectDtos.AddRange(resultOracleService.ProjectDtos);
+            db.ProjectStudentsCoAuthorDtos.AddRange(resultOracleService.ProjectStudentsCoAuthorDtos);
+            db.PublicationDtos.AddRange(resultOracleService.PublicationDtos);
+            db.StudentGroupDtos.AddRange(resultOracleService.StudentGroupDtos);
+            db.Rooms.AddRange(resultOracleService.Rooms);
+            db.Results.AddRange(resultOracleService.Results);
+            db.Rents.AddRange(resultOracleService.Rents);
+            db.SaveChanges();
         }
 
         private static IEnumerable<TeacherDto> CreateTeacherDictionary()
@@ -52,7 +82,7 @@ namespace DataLab
             db.SaveChanges();
         }
 
-        /*public static ResultOracleService CreateResultOracleService()
+        public static ResultOracleService CreateResultOracleService()
         {
             const string connectionString = "mongodb://admin:admin@localhost:2222";
             var client = new MongoClient(connectionString);
@@ -83,8 +113,9 @@ namespace DataLab
             resultOracleService.MergeRents(mongoDatabase.GetCollection<Rent>("rents").FindSync<Dto.Mongo.Rent>(filter)
                 .ToList());
             resultOracleService.MergeResults(oracleAppContext.Results.ToList(), psqlAppContext.Results.ToList());
+            resultOracleService.MergeStudentGroupDto(oracleAppContext.StudentGroupDtos.ToList());
             return resultOracleService;
-        }*/
+        }
 
         public static void FillOracle(Dictionary<Guid, string> dictionary, IEnumerable<TeacherDto> teacher,
             Guid[] guids)

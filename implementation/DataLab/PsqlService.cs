@@ -43,7 +43,7 @@ namespace DataLab
             {
                 StudentId = x.Key.ToString(),
                 FIO = x.Value
-            });
+            }).ToList();
         }
 
         private void GenerateDisciplines(IEnumerable<TeacherDto> dictionary)

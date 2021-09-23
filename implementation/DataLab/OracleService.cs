@@ -106,7 +106,7 @@ namespace DataLab
 
         private void CreateStudents(IDictionary<Guid, string> people)
         {
-            _studentDtos = people.Select(GenerateStudent);
+            _studentDtos = people.Select(GenerateStudent).ToList();
         }
 
         private StudentDto GenerateStudent(KeyValuePair<Guid, string> pair)

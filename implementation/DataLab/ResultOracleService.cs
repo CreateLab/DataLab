@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using DataLab.Dto.Mongo;
 using DataLab.Dto.MySql;
+using DataLab.Dto.Oracle;
 using DataLab.Dto.Psql;
 using DataLab.Dto.RuleDto;
 using BookInfoDto = DataLab.Dto.RuleDto.BookInfoDto;
 using Building = DataLab.Dto.RuleDto.Building;
+using Class = DataLab.Dto.RuleDto.Class;
 using ConferenceDto = DataLab.Dto.RuleDto.ConferenceDto;
 using ConferenceParticipationDto = DataLab.Dto.RuleDto.ConferenceParticipationDto;
 using Discipline = DataLab.Dto.RuleDto.Discipline;
@@ -16,6 +18,8 @@ using PublicationDto = DataLab.Dto.RuleDto.PublicationDto;
 using Rent = DataLab.Dto.Mongo.Rent;
 using Result = DataLab.Dto.RuleDto.Result;
 using StudentDto = DataLab.Dto.RuleDto.StudentDto;
+using StudentGroupDto = DataLab.Dto.RuleDto.StudentGroupDto;
+using StudyGroup = DataLab.Dto.RuleDto.StudyGroup;
 
 namespace DataLab
 {
@@ -50,6 +54,40 @@ namespace DataLab
         private IEnumerable<Result> _results;
         private IEnumerable<Dto.RuleDto.Rent> _rents;
 
+        private IEnumerable<StudentGroupDto> _studentGroupDtos;
+
+        public IEnumerable<StudentGroupDto> StudentGroupDtos => _studentGroupDtos;
+
+        public IEnumerable<StudentDto> StudentDtos => _studentDtos;
+
+        public IEnumerable<Discipline> Disciplines => _disciplines;
+
+        public IEnumerable<StudyGroup> StudyGroups => _studyGroups;
+
+        public IEnumerable<Class> Classes => _classes;
+
+        public IEnumerable<BookInfoDto> BookInfoDtos => _bookInfoDtos;
+
+        public IEnumerable<Building> Buildings => _buildings;
+
+        public IEnumerable<ConferenceDto> ConferenceDtos => _conferenceDtos;
+
+        public IEnumerable<ConferenceParticipationDto> ConferenceParticipationDtos => _conferenceParticipationDtos;
+
+        public IEnumerable<ProjectDto> ProjectDtos => _projectDtos;
+
+        public IEnumerable<ProjectStudentsCoAuthorDto> ProjectStudentsCoAuthorDtos => _projectStudentsCoAuthorDtos;
+
+        public IEnumerable<PublicationDto> PublicationDtos => _publicationDtos;
+
+        public IEnumerable<PublicationCoauthor> PublicationCoauthors => _publicationCoauthors;
+
+        public IEnumerable<Room> Rooms => _rooms;
+
+        public IEnumerable<Result> Results => _results;
+
+        public IEnumerable<Dto.RuleDto.Rent> Rents => _rents;
+
         /// <summary>
         /// 1
         /// </summary>
@@ -61,8 +99,9 @@ namespace DataLab
             IEnumerable<Dto.Mongo.StudentDto> mongoStudents, IEnumerable<Dto.MySql.StudentDto> mySqlStudents,
             IEnumerable<Dto.Oracle.StudentDto> oracleSudents)
         {
+            var groupBy = oracleSudents.GroupBy(x => x.StudentId);
             var studentsIds = new HashSet<string>(psqlStudents.Select(x => x.StudentId));
-            studentsIds.Select(id =>
+            _studentDtos = studentsIds.Select(id =>
             {
                 var psqlStudent = psqlStudents.First(x => x.StudentId == id);
                 var mongoStudent = mongoStudents.First(x => x.StudentId == id);
@@ -87,7 +126,7 @@ namespace DataLab
                     FIO = psqlStudent.FIO,
                     MongoId = mongoStudent.Id.ToString()
                 };
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -121,7 +160,7 @@ namespace DataLab
                     IsFullTime = psql?.IsFullTime,
                     IsNewStandard = psql?.IsNewStandard
                 };
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -138,7 +177,7 @@ namespace DataLab
                 Year = x.Year,
                 EndDate = x.EndDate,
                 StartDate = x.StartDate
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -155,7 +194,7 @@ namespace DataLab
                 TeacherId = x.TeacherId,
                 Discipline = _disciplines.FirstOrDefault(discipline => discipline.DiscpId == x.Discipline.DiscpId),
                 StudyGroup = _studyGroups.FirstOrDefault(studyGroup => studyGroup.Name == x.StudyGroup.Name),
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -163,14 +202,21 @@ namespace DataLab
         /// </summary>
         public void MergeBookInfoDtos(IEnumerable<Dto.MySql.BookInfoDto> infoDtos)
         {
-            _bookInfoDtos = infoDtos.Select(x => new BookInfoDto
+            List<BookInfoDto> list = new List<BookInfoDto>();
+            foreach (var x in infoDtos)
             {
-                Name = x.Name,
-                IsTaken = x.IsTaken,
-                ReturnDate = x.ReturnDate,
-                TakeDate = x.TakeDate,
-                Student = _studentDtos.FirstOrDefault(s => s.StudentId == x.Student.StudentId)
-            });
+                if (x != null)
+                    list.Add(new BookInfoDto
+                    {
+                        Name = x.Name,
+                        IsTaken = x.IsTaken,
+                        ReturnDate = x.ReturnDate,
+                        TakeDate = x.TakeDate,
+                        Student = _studentDtos.FirstOrDefault(s => s.StudentId == x.Student.StudentId)
+                    });
+            }
+
+            _bookInfoDtos = list;
         }
 
         /// <summary>
@@ -183,7 +229,7 @@ namespace DataLab
                 Location = x.Location,
                 RoomCount = x.RoomCount,
                 MongoId = x.Id.ToString()
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -197,7 +243,7 @@ namespace DataLab
                 Name = x.Name,
                 Place = x.Place,
                 StartTime = x.StartTime
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -209,7 +255,7 @@ namespace DataLab
             {
                 ConferenceDto = _conferenceDtos.FirstOrDefault(c => c.Name == x.ConferenceDto.Name),
                 StudentDto = _studentDtos.FirstOrDefault(s => s.StudentId == x.StudentDto.StudentId)
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -224,7 +270,7 @@ namespace DataLab
                 EndDate = x.EndDate,
                 StartDate = x.StartDate,
                 Author = _studentDtos.FirstOrDefault(s => s.StudentId == x.Author.StudentId)
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -237,7 +283,7 @@ namespace DataLab
             {
                 Author = _studentDtos.FirstOrDefault(s => s.StudentId == x.Author.StudentId),
                 Project = _projectDtos.FirstOrDefault(p => p.Name == x.Project.Name)
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -257,7 +303,7 @@ namespace DataLab
                 PublisherPlace = x.PublisherPlace,
                 PublisherVolume = x.PublisherVolume,
                 Author = _studentDtos.FirstOrDefault(s => s.StudentId == x.Author.StudentId)
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -270,7 +316,7 @@ namespace DataLab
             {
                 Author = _studentDtos.FirstOrDefault(s => s.StudentId == x.Author.StudentId),
                 Publication = _publicationDtos.FirstOrDefault(p => p.Name == x.Publication.Name)
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -286,9 +332,9 @@ namespace DataLab
                 DisinfectionDate = x.DisinfectionDate,
                 IsInsects = x.IsInsects,
                 MaxCapacity = x.MaxCapacity,
-                Build = _buildings.FirstOrDefault(b => b.MongoId == x.BuildId.Id.AsString),
+                Build = _buildings.FirstOrDefault(b => b.MongoId == x.BuildId.Id.ToString()),
                 MongoId = x.Id.ToString()
-            });
+            }).ToList();
         }
 
         /// <summary>
@@ -301,9 +347,9 @@ namespace DataLab
             {
                 StartDate = x.StartDate,
                 EndDate = x.EndDate,
-                Student = _studentDtos.FirstOrDefault(s => s.MongoId == x.Student.Id.AsString),
-                Room = _rooms.FirstOrDefault(r => r.MongoId == x.Room.Id.AsString)
-            });
+                Student = _studentDtos.FirstOrDefault(s => s.MongoId == x.Student.Id.ToString()),
+                Room = _rooms.FirstOrDefault(r => r.MongoId == x.Room.Id.ToString())
+            }).ToList();
         }
 
         public void MergeResults(IEnumerable<Dto.Oracle.Result> oresult, IEnumerable<Dto.Psql.Result> presult)
@@ -323,10 +369,19 @@ namespace DataLab
                     Student = GenerateStudent(o, p),
                     Discipline = GenerateDiscipline(o, p)
                 };
-            });
+            }).ToList();
         }
 
-        private Discipline GenerateDiscipline(Dto.Oracle.Result oResult, Dto.Psql.Result pResult)
+        public void MergeStudentGroupDto(IEnumerable<Dto.Oracle.StudentGroupDto> groupDtos)
+        {
+            _studentGroupDtos = groupDtos.Select(x => new StudentGroupDto
+            {
+                StudentDto = _studentDtos.FirstOrDefault(s => s.StudentId == x.StudentDto.StudentId),
+                StudyGroup = _studyGroups.FirstOrDefault(s => s.Name == x.StudyGroup.Name)
+            }).ToList();
+        }
+
+    private Discipline GenerateDiscipline(Dto.Oracle.Result oResult, Dto.Psql.Result pResult)
         {
             if (oResult == null && pResult == null) return null;
             return oResult != null
