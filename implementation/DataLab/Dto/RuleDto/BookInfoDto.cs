@@ -6,9 +6,11 @@ namespace DataLab.Dto.RuleDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public StudentDto Student { get; set; }
+        
+        public string PersonId { get; set; }
         public bool IsTaken { get; set; }
         public DateTime TakeDate { get; set; }
         public DateTime ReturnDate { get; set; }
+       
     }
 }

@@ -104,9 +104,9 @@ namespace DataLab
                 results.AddRange(new Faker<Result>()
                     .Ignore(x => x.Id)
                     .RuleFor(x => x.Student, _ => studentDto)
-                    .RuleFor(x => x.Mark, f => f.Random.Int(0, 101))
+                    .RuleFor(x => x.Mark, f => f.Random.Int(2, 5))
                     .RuleFor(x => x.Date, f => f.Date.Recent())
-                    .RuleFor(x => x.Discipline, f => f.PickRandom(_discipline)).Generate(2));
+                    .RuleFor(x => x.Discipline, f => f.PickRandom(_discipline)).Generate(10));
             }
 
             _results = results;

@@ -27,12 +27,12 @@ namespace DataLab
             var dictionary = CreatePersonDictionary();
             var teachers = CreateTeacherDictionary();
             var pool = Enumerable.Range(0, 100).Select(_ => Guid.NewGuid()).ToArray();
-            /*FillMySql(dictionary);
-             FillPsql(dictionary, teachers, pool);
-             FillMongo(dictionary);
-             FillOracle(dictionary, teachers, pool);*/
-            //var resultOracleService = CreateResultOracleService();
-            //FillRuleOracle(resultOracleService);
+            //FillMySql(dictionary, teachers);
+            //FillPsql(dictionary, teachers, pool);
+            //FillMongo(dictionary);
+            //FillOracle(dictionary, teachers, pool);
+            var resultOracleService = CreateResultOracleService();
+            FillRuleOracle(resultOracleService);
         }
 
         private static void FillRuleOracle(ResultOracleService resultOracleService)
@@ -57,6 +57,13 @@ namespace DataLab
             db.Rooms.AddRange(resultOracleService.Rooms);
             db.Results.AddRange(resultOracleService.Results);
             db.Rents.AddRange(resultOracleService.Rents);
+            db.Times.AddRange(resultOracleService.Times.ToList());
+            db.BirthdayPlaces.AddRange(resultOracleService.BirthdayPlaces.ToList());
+            db.PublicationPlaces.AddRange(resultOracleService.PublicationPlaces.ToList());
+            db.Fact1.AddRange(resultOracleService.Fact1.ToList());
+            db.Fact2.AddRange(resultOracleService.Fact2.ToList());
+            db.Fact3.AddRange(resultOracleService.Fact3.ToList());
+            db.Fact4.AddRange(resultOracleService.Fact4.ToList());
             db.SaveChanges();
         }
 
@@ -67,9 +74,9 @@ namespace DataLab
             return dataArray;
         }
 
-        private static void FillMySql(Dictionary<Guid, string> dictionary)
+        private static void FillMySql(Dictionary<Guid, string> dictionary, IEnumerable<TeacherDto> teacherDtos)
         {
-            var mySqlService = new MySqlService(dictionary);
+            var mySqlService = new MySqlService(dictionary, teacherDtos.ToDictionary(x => new Guid(x.ID), x => x.FIO));
             using var db = new MySqlDbContext();
             db.StudentDtos.AddRange(mySqlService.Students);
             db.ProjectDtos.AddRange(mySqlService.ProjectDtos);
@@ -114,6 +121,13 @@ namespace DataLab
                 .ToList());
             resultOracleService.MergeResults(oracleAppContext.Results.ToList(), psqlAppContext.Results.ToList());
             resultOracleService.MergeStudentGroupDto(oracleAppContext.StudentGroupDtos.ToList());
+            resultOracleService.GenerateTimes();
+            resultOracleService.GenerateBirthdayPlace();
+            resultOracleService.GeneratePubPlaces();
+            resultOracleService.GenerateFact1();
+            resultOracleService.GenerateFact2();
+            resultOracleService.GenerateFact3();
+            resultOracleService.GenerateFact4();
             return resultOracleService;
         }
 
@@ -150,7 +164,7 @@ namespace DataLab
             var client = new MongoClient(connectionString);
             var mongoDatabase = client.GetDatabase("test");
             var mongoBuildingCollection = mongoDatabase.GetCollection<Building>("building");
-            mongoBuildingCollection.InsertOne(mongoService.Building);
+            mongoBuildingCollection.InsertMany(mongoService.Buildings);
 
             var mongoRoomCollection = mongoDatabase.GetCollection<RoomDto>("rooms");
             mongoRoomCollection.InsertMany(mongoService.RoomDtos);

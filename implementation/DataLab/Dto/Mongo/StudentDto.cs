@@ -1,11 +1,13 @@
 ﻿using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace DataLab.Dto.Mongo
 {
     public class StudentDto
     {
-        public ObjectId Id { get; set; }
+        [BsonId]
+        public string Id { get; set; }
         public string StudentId { get; set; }
         public string FIO { get; set; }
         public bool Privileges { get; set; }

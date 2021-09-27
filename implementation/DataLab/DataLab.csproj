@@ -20,10 +20,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Data\names.json">
+      <None Update="Data\teachers.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Data\teachers.json">
+      <None Update="Data\names.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

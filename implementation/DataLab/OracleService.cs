@@ -47,9 +47,9 @@ namespace DataLab
             _results = new Faker<Result>("ru")
                 .Ignore(x => x.Id)
                 .RuleFor(x => x.Discipline, f => f.PickRandom(_disciplines))
-                .RuleFor(x => x.Mark, f => f.Random.Int(1, 6))
+                .RuleFor(x => x.Mark, f => f.Random.Int(2, 5))
                 .RuleFor(x => x.Date, f => f.Date.Recent())
-                .RuleFor(x => x.Student, f => f.PickRandom(_studentDtos)).Generate(50);
+                .RuleFor(x => x.Student, f => f.PickRandom(_studentDtos)).Generate(5000);
         }
 
         private void GenerateSDDtos()
@@ -60,11 +60,10 @@ namespace DataLab
                 .RuleFor(x => x.StudyGroup, f => f.PickRandom(_studyGroups)).Generate(1).First()).ToArray();
         }
 
-      
 
         private void GenerateClasses(IEnumerable<TeacherDto> dictionary)
         {
-           _classes = new Faker<Class>("ru").Ignore(x => x.Id)
+            _classes = new Faker<Class>("ru").Ignore(x => x.Id)
                 .RuleFor(x => x.Discipline, f => f.PickRandom(_disciplines))
                 .RuleFor(x => x.Room, f => f.Random.Int())
                 .RuleFor(x => x.Time, f => f.Date.Soon())
@@ -84,6 +83,7 @@ namespace DataLab
                 .RuleFor(x => x.TeacherId, f => f.PickRandom(dictionary).ID)
                 .RuleFor(x => x.TeacherFio, (_, u) => dictionary.First(x => x.ID == u.TeacherId).FIO).Generate(50);
         }
+
         private string GetDGuid()
         {
             var first = _guids.First();
@@ -94,30 +94,34 @@ namespace DataLab
         private void GenerateStudyGroup()
         {
             var q = new[] { "маг", "бак" };
+
             _studyGroups = new Faker<StudyGroup>("ru")
                 .Ignore(x => x.Id)
-                .RuleFor(x => x.Course, f => f.Random.Int(1, 6))
                 .RuleFor(x => x.Name, f => f.Company.CompanyName())
                 .RuleFor(x => x.Qualification, f => f.PickRandom(q))
-                .RuleFor(x => x.Year, _ => "2018/2019")
-                .RuleFor(x => x.StartDate, f => f.Date.Recent())
-                .RuleFor(x => x.EndDate, f => f.Date.Future()).Generate(50);
+                .RuleFor(x => x.Course, (f, u) => u.Qualification == "маг" ? f.Random.Int(5, 6) : f.Random.Int(1, 4))
+                .RuleFor(x => x.Year, f => f.Random.Int(2013, 2021).ToString())
+                .RuleFor(x => x.StartDate, (_, u) => new DateTime(int.Parse(u.Year), 9, 1))
+                .RuleFor(x => x.EndDate, (_, u) => new DateTime(int.Parse(u.Year) + 1, 8, 31)).Generate(50);
         }
 
         private void CreateStudents(IDictionary<Guid, string> people)
         {
-            _studentDtos = people.Select(GenerateStudent).ToList();
+            var addresses = new Faker<Address>("ru").RuleFor(x => x.AddressLine, f => f.Address.FullAddress())
+                .Generate(10);
+            _studentDtos = people.Select(x => GenerateStudent(x, addresses)).ToList();
         }
 
-        private StudentDto GenerateStudent(KeyValuePair<Guid, string> pair)
+        private StudentDto GenerateStudent(KeyValuePair<Guid, string> pair, List<Address> addresses)
         {
             var dep = new[] { "пи", "суир", "мде" };
             var pos = new[] { "доцент", "не доцент" };
             var way = new[] { "разработка систем", "система разработки" };
+
             return new Faker<StudentDto>("ru")
                 .Ignore(x => x.Id)
-                .RuleFor(x => x.Birthdate, f => f.Date.Past())
-                .RuleFor(x => x.Location, f => f.Address.FullAddress())
+                .RuleFor(x => x.Birthdate, f => f.Date.Between(new DateTime(1995, 1, 1), new DateTime(2002, 1, 1)))
+                .RuleFor(x => x.Location, f => f.PickRandom(addresses).AddressLine)
                 .RuleFor(x => x.Departament, f => f.PickRandom(dep))
                 .RuleFor(x => x.Position, f => f.PickRandom(pos))
                 .RuleFor(x => x.IsPaid, f => f.Random.Bool())
